@@ -30,7 +30,7 @@ def recv(sock:socket.socket,n: int):
 
 #Defining Functions
 def msg_with_header(message):
-    return bytes(f"{len(message):<10}","utf-8") + message
+    return b"HEAD"+bytes(f"{len(message):<10}","utf-8") + message
 
 def client_mainloop(sock: socket.socket,client: Client):
     global cap
