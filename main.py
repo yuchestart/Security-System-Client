@@ -29,7 +29,7 @@ def client_mainloop(sock: socket.socket, client: Client):
             print("Failure to encode.")
             client.stop_client_mainloop()
         buf = buf.tobytes()
-        sock.sendall(msghead(buf))
+        sock.sendall(msghead(buf,b"LVST"))
     else:
         print("Camera had failed.")
         client.stop_client_mainloop()
