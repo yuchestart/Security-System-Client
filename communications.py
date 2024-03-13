@@ -28,6 +28,7 @@ class Client:
         config_file.close()
         self.server_address = config["server_address"]
         self.server_port = config["server_port"]
+        self.connection_attempts = config["connection_attempts"]
     
     def create_client(self) -> None:
         self.client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
