@@ -22,13 +22,18 @@ class Client:
     client_mainloops:Dict[int,None] = {}
     mainloop_running:bool = False
 
-    def __init__(self):
-        config_file = open("./config/communications.json")
-        config = json.load(config_file)
-        config_file.close()
-        self.server_address = config["server_address"]
-        self.server_port = config["server_port"]
-        self.connection_attempts = config["connection_attempts"]
+    def __init__(self,ip:str = None,port:int = None,connection_attempts:int = None):
+        if ip and port and connection_attempts:
+            self.server_address = ip
+            self.server_port = int(port)
+            self.connection_attempts = int(connection_attempts)
+        else:
+            config_file = open(__file__[:-len(__file__.split("/")[-1])]+"config/communications.json")
+            config = json.load(config_file)
+            config_file.close()
+            self.server_address = config["server_address"]
+            self.server_port = config["server_port"]
+            self.connection_attempts = config["connection_attempts"]
     
     def create_client(self) -> None:
         self.client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)

@@ -1,25 +1,50 @@
 from communications import Client, recvlen, msghead
+from typing import *
 import cv2
 import numpy as np
 import atexit
 import socket
+import os
+import sys
+
+customconnectionparams: Dict[str,Any] = {
+    "ip":None,
+    "port":None,
+    "connection_attempts":None
+}
+
+for argument in sys.argv:
+    arg = argument.split("=")
+    if arg[0] in customconnectionparams:
+        customconnectionparams[arg[0]] = arg[1]
 
 client: Client = None
 cap: cv2.VideoCapture = None
-
+shutdown: bool = False
 @atexit.register
 def cleanup():
-    global cap,client
+    global cap,client,shutdown
     cap.release()
     client.destroy()
     cv2.destroyAllWindows()
     print("Program Terminated")
+    if shutdown:
+        print("Shutting down system...")
+        os.system("sudo shutdown -h now")
+
 
 def client_mainloop(sock: socket.socket, client: Client):
-    global cap
+    global cap,shutdown
     cancontinue = recvlen(sock,4)
     if cancontinue != b"CTLS":
-        print("Server didn't send header." if not cancontinue else f"Server sent invalid header:\n{str(cancontinue)}")
+        if cancontinue == b"STDN":
+            print("Shutting down client...")
+            client.stop_client_mainloop()
+            cleanup()
+            shutdown = True
+            return
+        else:
+            print("Server didn't send header." if not cancontinue else f"Server sent invalid header:\n{str(cancontinue)}")
         client.stop_client_mainloop()
     ret,frame = cap.read()
     if ret:
@@ -42,7 +67,7 @@ if not ret:
 
 print("Camera created.")
 
-client = Client()
+client = Client(**customconnectionparams)
 client.create_client()
 
 print("Client created")
